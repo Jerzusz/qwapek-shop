@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
+const MotionLink = motion(Link);
 import { ArrowRight, Package, ShieldCheck, Truck, RefreshCw, Zap, Shirt, Gamepad2, Sparkles, Sofa, Wrench } from 'lucide-react';
 import ProductGrid from '../components/products/ProductGrid';
 
@@ -20,6 +22,7 @@ const CATEGORY_HIGHLIGHTS = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   return (
     <div>
       {/* Hero */}
@@ -93,9 +96,9 @@ export default function Home() {
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Kategorie</h2>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
           {CATEGORY_HIGHLIGHTS.map(({ name, gradient, emoji }, i) => (
-            <motion.a
+            <MotionLink
               key={name}
-              href={`/?category=${encodeURIComponent(name)}`}
+              to={`/?category=${encodeURIComponent(name)}`}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.07 }}
@@ -105,7 +108,7 @@ export default function Home() {
             >
               <div className="text-3xl mb-1">{emoji}</div>
               <p className="text-xs font-semibold leading-tight">{name}</p>
-            </motion.a>
+            </MotionLink>
           ))}
         </div>
       </section>
@@ -116,9 +119,9 @@ export default function Home() {
           {/* Left decorative strip (desktop only) */}
           <aside className="hidden xl:flex flex-col gap-3 w-36 flex-shrink-0 pt-14">
             {CATEGORY_HIGHLIGHTS.map(({ name, gradient, emoji }, i) => (
-              <motion.a
+              <MotionLink
                 key={name}
-                href={`/?category=${encodeURIComponent(name)}`}
+                to={`/?category=${encodeURIComponent(name)}`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
@@ -127,7 +130,7 @@ export default function Home() {
               >
                 <span className="text-2xl">{emoji}</span>
                 <span className="text-xs font-semibold leading-tight">{name}</span>
-              </motion.a>
+              </MotionLink>
             ))}
           </aside>
 
