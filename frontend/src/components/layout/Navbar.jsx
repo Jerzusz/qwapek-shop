@@ -21,9 +21,12 @@ export default function Navbar({ onMenuClick }) {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`, { preventScrollReset: true });
       setSearchOpen(false);
       setSearchQuery('');
+      setTimeout(() => {
+        document.getElementById('products')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 
@@ -71,13 +74,13 @@ export default function Navbar({ onMenuClick }) {
               Kategorie
               <ChevronDown size={14} />
             </button>
-            <Link to="/?category=Elektronika" className="px-3 py-2 rounded-xl text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all">
+            <Link to="/?category=Elektronika" preventScrollReset className="px-3 py-2 rounded-xl text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all">
               Elektronika
             </Link>
-            <Link to="/?category=Ubrania" className="px-3 py-2 rounded-xl text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all">
+            <Link to="/?category=Ubrania" preventScrollReset className="px-3 py-2 rounded-xl text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all">
               Ubrania
             </Link>
-            <Link to="/?category=Narzędzia" className="px-3 py-2 rounded-xl text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all">
+            <Link to="/?category=Narzędzia" preventScrollReset className="px-3 py-2 rounded-xl text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all">
               Narzędzia
             </Link>
           </div>
@@ -93,6 +96,7 @@ export default function Navbar({ onMenuClick }) {
                   transition={{ duration: 0.2 }}
                   onSubmit={handleSearch}
                   className="overflow-hidden"
+                  style={{ maxWidth: 'calc(100vw - 175px)' }}
                 >
                   <input
                     autoFocus

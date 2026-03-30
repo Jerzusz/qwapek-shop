@@ -10,15 +10,20 @@ const ALL_CATEGORY = { name: 'Wszystkie', icon: 'LayoutGrid', color: 'gray', acc
 export default function Sidebar({ isOpen, onClose, activeCategory }) {
   const navigate = useNavigate();
   const [apiCategories, setApiCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    categoriesApi.getAll().then(({ data }) => setApiCategories(data)).catch(() => {});
+    setLoading(true);
+    categoriesApi.getAll()
+      .then(({ data }) => setApiCategories(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const categories = [ALL_CATEGORY, ...apiCategories];
 
   const handleCategory = (cat) => {
-    navigate(cat === 'Wszystkie' ? '/' : `/?category=${encodeURIComponent(cat)}`);
+    navigate(cat === 'Wszystkie' ? '/' : `/?category=${encodeURIComponent(cat)}`, { preventScrollReset: true });
     onClose();
   };
 
@@ -58,7 +63,17 @@ export default function Sidebar({ isOpen, onClose, activeCategory }) {
 
             {/* Categories */}
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-              {categories.map((cat) => {
+              {loading ? (
+                <>
+                  {[...Array(7)].map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl animate-pulse">
+                      <div className="w-8 h-8 bg-gray-200 rounded-lg flex-shrink-0" />
+                      <div className="h-4 bg-gray-200 rounded w-24" />
+                    </div>
+                  ))}
+                </>
+              ) : (
+                categories.map((cat) => {
                 const Icon = ICON_MAP[cat.icon] || DEFAULT_ICON;
                 const cs = COLOR_MAP[cat.color] || COLOR_MAP.gray;
                 const { name, accent } = cat;
@@ -88,7 +103,8 @@ export default function Sidebar({ isOpen, onClose, activeCategory }) {
                     )}
                   </motion.button>
                 );
-              })}
+              })
+              )}
             </nav>
 
             {/* Footer */}
