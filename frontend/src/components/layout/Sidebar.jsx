@@ -23,13 +23,13 @@ export default function Sidebar({ isOpen, onClose, activeCategory }) {
   const categories = [ALL_CATEGORY, ...apiCategories];
 
   const handleCategory = (cat) => {
-    const scrollY = window.scrollY;
     navigate(cat === 'Wszystkie' ? '/' : `/?category=${encodeURIComponent(cat)}`, { preventScrollReset: true });
     onClose();
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollY, behavior: 'instant' });
-      });
+      const el = document.getElementById('products');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
     });
   };
 
