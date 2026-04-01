@@ -13,6 +13,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminMessages from './pages/admin/AdminMessages';
 import AdminCategories from './pages/admin/AdminCategories';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             <Route element={<ShopLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/kontakt" element={<Contact />} />
+              <Route path="/polityka-prywatnosci" element={<PrivacyPolicy />} />
             </Route>
 
             {/* Admin login */}

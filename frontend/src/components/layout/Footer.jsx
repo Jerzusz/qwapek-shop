@@ -71,7 +71,15 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
           <p>© {new Date().getFullYear()} Qwapek Shop. Wszelkie prawa zastrzeżone.</p>
-          <p>Płatność przelewem · Dostawa 24–48h · Zwroty 14 dni</p>
+          <div className="flex items-center gap-3">
+            <Link to="/polityka-prywatnosci" className="hover:text-white transition-colors">Polityka Prywatności</Link>
+            <span>·</span>
+            <span>Płatność przelewem</span>
+            <span>·</span>
+            <span>Dostawa 24–48h</span>
+            <span>·</span>
+            <span>Zwroty 14 dni</span>
+          </div>
         </div>
       </div>
     </footer>
