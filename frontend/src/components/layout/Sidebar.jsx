@@ -15,7 +15,7 @@ export default function Sidebar({ isOpen, onClose, activeCategory }) {
   useEffect(() => {
     setLoading(true);
     categoriesApi.getAll()
-      .then(({ data }) => setApiCategories(data))
+      .then(({ data }) => setApiCategories(data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

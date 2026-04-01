@@ -36,17 +36,19 @@ export default function ProductGrid() {
         page,
         limit: LIMIT,
       });
-      setProducts(data.products);
-      setTotal(data.total);
+      setProducts(data.products || []);
+      setTotal(data.total || 0);
     } catch (err) {
       console.error(err);
+      setProducts([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
   }, [category, search, page]);
 
   useEffect(() => {
-    categoriesApi.getAll().then(({ data }) => setApiCategories(data)).catch(() => {});
+    categoriesApi.getAll().then(({ data }) => setApiCategories(data || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
