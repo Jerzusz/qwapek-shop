@@ -23,6 +23,7 @@ sqlite.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'worker',
     created_at TEXT NOT NULL
   );
 
@@ -77,9 +78,12 @@ sqlite.exec(`
 `);
 
 /* ─── Seed admin ─────────────────────────────────────────── */
+// Add role column if migrating from old schema
+try { sqlite.exec('ALTER TABLE admin ADD COLUMN role TEXT NOT NULL DEFAULT \'worker\''); } catch {}
+
 if (sqlite.get('SELECT COUNT(*) as c FROM admin').c === 0) {
-  sqlite.run('INSERT INTO admin (username, password_hash, created_at) VALUES (?, ?, ?)',
-    ['admin', bcrypt.hashSync('admin123', 10), nowISO()]);
+  sqlite.run('INSERT INTO admin (username, password_hash, role, created_at) VALUES (?, ?, ?, ?)',
+    ['admin', bcrypt.hashSync('admin123', 10), 'owner', nowISO()]);
   console.log('✓ Domyślny admin: login=admin, hasło=admin123');
 }
 
@@ -226,6 +230,12 @@ const db = {
       if (changes === 0) return null;
       return parseOrder(sqlite.get('SELECT * FROM orders WHERE id = ?', [id]));
     },
+
+    getStats() {
+      const total = sqlite.get('SELECT COUNT(*) as c FROM orders').c;
+      const revenue = sqlite.get("SELECT COALESCE(SUM(total), 0) as s FROM orders WHERE status = 'completed'").s;
+      return { total, revenue };
+    },
   },
 
   /* ─── Messages ─────────────────────────────────────────────── */
@@ -259,6 +269,39 @@ const db = {
   admin: {
     findByUsername(username) {
       return sqlite.get('SELECT * FROM admin WHERE username = ?', [username]) || null;
+    },
+    findById(id) {
+      return sqlite.get('SELECT * FROM admin WHERE id = ?', [id]) || null;
+    },
+    getAll() {
+      return sqlite.all('SELECT id, username, role, created_at FROM admin ORDER BY id ASC');
+    },
+    create(data) {
+      const { lastInsertRowid } = sqlite.run(
+        'INSERT INTO admin (username, password_hash, role, created_at) VALUES (?, ?, ?, ?)',
+        [data.username, bcrypt.hashSync(data.password, 10), data.role || 'worker', nowISO()]
+      );
+      const row = sqlite.get('SELECT id, username, role, created_at FROM admin WHERE id = ?', [lastInsertRowid]);
+      return row;
+    },
+    update(id, data) {
+      const existing = sqlite.get('SELECT * FROM admin WHERE id = ?', [id]);
+      if (!existing) return null;
+      const fields = [];
+      const params = [];
+      if (data.username) { fields.push('username = ?'); params.push(data.username); }
+      if (data.password) { fields.push('password_hash = ?'); params.push(bcrypt.hashSync(data.password, 10)); }
+      if (data.role) { fields.push('role = ?'); params.push(data.role); }
+      if (fields.length === 0) return existing;
+      params.push(id);
+      sqlite.run(`UPDATE admin SET ${fields.join(', ')} WHERE id = ?`, params);
+      return sqlite.get('SELECT id, username, role, created_at FROM admin WHERE id = ?', [id]);
+    },
+    delete(id) {
+      const existing = sqlite.get('SELECT id, username, role, created_at FROM admin WHERE id = ?', [id]);
+      if (!existing) return null;
+      sqlite.run('DELETE FROM admin WHERE id = ?', [id]);
+      return existing;
     },
   },
 

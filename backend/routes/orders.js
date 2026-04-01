@@ -2,7 +2,7 @@
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const db = require('../database');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, requireRole } = require('../middleware/authMiddleware');
 
 function generateOrderNumber() {
   const d = new Date();
@@ -52,6 +52,16 @@ router.post('/', async (req, res) => {
   }
 });
 
+// GET /api/orders/stats – admin only
+router.get('/stats', authenticateToken, (req, res) => {
+  try {
+    const stats = db.orders.getStats();
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ message: 'Błąd serwera', error: err.message });
+  }
+});
+
 // GET /api/orders – admin only
 router.get('/', authenticateToken, (req, res) => {
   try {
@@ -67,7 +77,7 @@ router.get('/', authenticateToken, (req, res) => {
 router.put('/:id/status', authenticateToken, (req, res) => {
   try {
     const { status } = req.body;
-    if (!['new', 'processing', 'shipped'].includes(status)) {
+    if (!['new', 'processing', 'shipped', 'completed'].includes(status)) {
       return res.status(400).json({ message: 'Nieprawidłowy status' });
     }
     const updated = db.orders.updateStatus(req.params.id, status);

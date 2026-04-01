@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, requireRole } = require('../middleware/authMiddleware');
 
 // GET /api/categories – public
 router.get('/', (req, res) => {
@@ -12,8 +12,8 @@ router.get('/', (req, res) => {
   }
 });
 
-// POST /api/categories – admin only
-router.post('/', authenticateToken, (req, res) => {
+// POST /api/categories – owner & trusted only
+router.post('/', authenticateToken, requireRole('owner', 'trusted'), (req, res) => {
   try {
     const { name, icon, color } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ message: 'Podaj nazwę kategorii' });
@@ -28,8 +28,8 @@ router.post('/', authenticateToken, (req, res) => {
   }
 });
 
-// PUT /api/categories/:id – admin only
-router.put('/:id', authenticateToken, (req, res) => {
+// PUT /api/categories/:id – owner & trusted only
+router.put('/:id', authenticateToken, requireRole('owner', 'trusted'), (req, res) => {
   try {
     const existing = db.categories.getById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Kategoria nie znaleziona' });
@@ -45,8 +45,8 @@ router.put('/:id', authenticateToken, (req, res) => {
   }
 });
 
-// DELETE /api/categories/:id – admin only
-router.delete('/:id', authenticateToken, (req, res) => {
+// DELETE /api/categories/:id – owner & trusted only
+router.delete('/:id', authenticateToken, requireRole('owner', 'trusted'), (req, res) => {
   try {
     const existing = db.categories.getById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Kategoria nie znaleziona' });

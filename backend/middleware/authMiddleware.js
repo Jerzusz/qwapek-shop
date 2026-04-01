@@ -18,4 +18,13 @@ function authenticateToken(req, res, next) {
   }
 }
 
-module.exports = { authenticateToken };
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Brak uprawnień do tej operacji' });
+    }
+    next();
+  };
+}
+
+module.exports = { authenticateToken, requireRole };

@@ -41,6 +41,7 @@ export const productsApi = {
 export const ordersApi = {
   create: (data) => api.post('/orders', data),
   getAll: (params) => api.get('/orders', { params }),
+  getStats: () => api.get('/orders/stats'),
   updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
 };
 
@@ -53,6 +54,10 @@ export const contactApi = {
 export const authApi = {
   login: (data) => api.post('/auth/login', data),
   verify: (token) => api.post('/auth/verify', { token }),
+  getUsers: () => api.get('/auth/users'),
+  createUser: (data) => api.post('/auth/users', data),
+  updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
+  deleteUser: (id) => api.delete(`/auth/users/${id}`),
 };
 
 export const categoriesApi = {

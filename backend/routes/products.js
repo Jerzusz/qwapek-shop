@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const db = require('../database');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, requireRole } = require('../middleware/authMiddleware');
 
 const uploadDir = path.join(__dirname, '../uploads/products');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -54,8 +54,8 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// POST /api/products – admin only
-router.post('/', authenticateToken, upload.array('images', 10), (req, res) => {
+// POST /api/products – owner & trusted only
+router.post('/', authenticateToken, requireRole('owner', 'trusted'), upload.array('images', 10), (req, res) => {
   try {
     const { name, description, category, price, quantity, status, is_new } = req.body;
     if (!name || !category || price === undefined) {
@@ -78,8 +78,8 @@ router.post('/', authenticateToken, upload.array('images', 10), (req, res) => {
   }
 });
 
-// PUT /api/products/:id – admin only
-router.put('/:id', authenticateToken, upload.array('images', 10), (req, res) => {
+// PUT /api/products/:id – owner & trusted only
+router.put('/:id', authenticateToken, requireRole('owner', 'trusted'), upload.array('images', 10), (req, res) => {
   try {
     const existing = db.products.getById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Produkt nie znaleziony' });
@@ -110,8 +110,8 @@ router.put('/:id', authenticateToken, upload.array('images', 10), (req, res) => 
   }
 });
 
-// DELETE /api/products/:id – admin only
-router.delete('/:id', authenticateToken, (req, res) => {
+// DELETE /api/products/:id – owner & trusted only
+router.delete('/:id', authenticateToken, requireRole('owner', 'trusted'), (req, res) => {
   try {
     const existing = db.products.getById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Produkt nie znaleziony' });

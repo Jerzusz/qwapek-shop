@@ -12,17 +12,17 @@ export default function AdminDashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [pRes, oRes, mRes] = await Promise.all([
+        const [pRes, oRes, mRes, sRes] = await Promise.all([
           productsApi.getAll({ limit: 1 }),
           ordersApi.getAll({ limit: 5 }),
           contactApi.getMessages({ limit: 1 }),
+          ordersApi.getStats(),
         ]);
-        const revenue = oRes.data.orders.reduce((s, o) => s + o.total, 0);
         setStats({
           products: pRes.data.total,
           orders: oRes.data.total,
           messages: mRes.data.total,
-          revenue,
+          revenue: sRes.data.revenue,
           unread: mRes.data.unread,
         });
         setRecentOrders(oRes.data.orders);
@@ -35,13 +35,13 @@ export default function AdminDashboard() {
     load();
   }, []);
 
-  const STATUS = { new: { label: 'Nowe', cls: 'bg-blue-100 text-blue-700' }, processing: { label: 'W realizacji', cls: 'bg-amber-100 text-amber-700' }, shipped: { label: 'Wysłane', cls: 'bg-green-100 text-green-700' } };
+  const STATUS = { new: { label: 'Nowe', cls: 'bg-blue-100 text-blue-700' }, processing: { label: 'W realizacji', cls: 'bg-amber-100 text-amber-700' }, shipped: { label: 'Wysłane', cls: 'bg-green-100 text-green-700' }, completed: { label: 'Zrealizowane', cls: 'bg-emerald-100 text-emerald-700' } };
 
   const STAT_CARDS = [
     { label: 'Produkty', value: stats.products, icon: Package, color: 'bg-blue-50 text-blue-600', link: '/admin/produkty' },
     { label: 'Zamówienia', value: stats.orders, icon: ShoppingBag, color: 'bg-violet-50 text-violet-600', link: '/admin/zamowienia' },
     { label: 'Wiadomości', value: stats.messages, icon: MessageSquare, color: 'bg-emerald-50 text-emerald-600', link: '/admin/wiadomosci', badge: stats.unread },
-    { label: 'Przychód (podgląd)', value: `${stats.revenue.toFixed(2)} zł`, icon: TrendingUp, color: 'bg-amber-50 text-amber-600' },
+    { label: 'Przychód (zrealizowane)', value: `${stats.revenue.toFixed(2)} zł`, icon: TrendingUp, color: 'bg-amber-50 text-amber-600' },
   ];
 
   if (loading) {
