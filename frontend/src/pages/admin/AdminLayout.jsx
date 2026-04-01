@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, ShoppingBag, MessageSquare, LayoutDashboard,
-  LogOut, Menu, X, ChevronRight, ExternalLink, Tags, Users
+  LogOut, Menu, X, ChevronRight, ExternalLink, Tags, Users, TrendingUp
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: '/admin/kategorie', icon: Tags, label: 'Kategorie', roles: ['owner', 'trusted'] },
   { to: '/admin/zamowienia', icon: ShoppingBag, label: 'Zamówienia', roles: ['owner', 'trusted', 'worker'] },
   { to: '/admin/wiadomosci', icon: MessageSquare, label: 'Wiadomości', roles: ['owner', 'trusted'] },
+  { to: '/admin/wartosci', icon: TrendingUp, label: 'Wartości', roles: ['owner'] },
   { to: '/admin/uzytkownicy', icon: Users, label: 'Użytkownicy', roles: ['owner'] },
 ];
 

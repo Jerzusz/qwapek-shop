@@ -62,6 +62,16 @@ router.get('/stats', authenticateToken, (req, res) => {
   }
 });
 
+// GET /api/orders/financials – admin only
+router.get('/financials', authenticateToken, (req, res) => {
+  try {
+    const data = db.orders.getFinancials();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: 'Błąd serwera', error: err.message });
+  }
+});
+
 // GET /api/orders – admin only
 router.get('/', authenticateToken, (req, res) => {
   try {

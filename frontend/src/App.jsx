@@ -13,6 +13,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminMessages from './pages/admin/AdminMessages';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminFinancials from './pages/admin/AdminFinancials';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 
@@ -48,6 +49,7 @@ export default function App() {
               <Route path="kategorie" element={<AdminCategories />} />
               <Route path="zamowienia" element={<AdminOrders />} />
               <Route path="wiadomosci" element={<AdminMessages />} />
+              <Route path="wartosci" element={<AdminFinancials />} />
               <Route path="uzytkownicy" element={<AdminUsers />} />
             </Route>
           </Routes>

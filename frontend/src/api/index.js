@@ -42,6 +42,7 @@ export const ordersApi = {
   create: (data) => api.post('/orders', data),
   getAll: (params) => api.get('/orders', { params }),
   getStats: () => api.get('/orders/stats'),
+  getFinancials: () => api.get('/orders/financials'),
   updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
 };
 

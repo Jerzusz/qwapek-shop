@@ -236,6 +236,48 @@ const db = {
       const revenue = sqlite.get("SELECT COALESCE(SUM(total), 0) as s FROM orders WHERE status = 'completed'").s;
       return { total, revenue };
     },
+
+    getFinancials() {
+      // Total revenue from completed orders
+      const totalRevenue = sqlite.get("SELECT COALESCE(SUM(total), 0) as s FROM orders WHERE status = 'completed'").s;
+
+      // Weekly revenue (last 7 days, completed only)
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const weekRevenue = sqlite.get("SELECT COALESCE(SUM(total), 0) as s FROM orders WHERE status = 'completed' AND created_at >= ?", [weekAgo]).s;
+      const weekOrders = sqlite.get("SELECT COUNT(*) as c FROM orders WHERE status = 'completed' AND created_at >= ?", [weekAgo]).c;
+
+      // Monthly projection (week * 4.33)
+      const monthlyProjection = weekRevenue * (30 / 7);
+
+      // Last 30 days revenue (completed)
+      const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const monthRevenue = sqlite.get("SELECT COALESCE(SUM(total), 0) as s FROM orders WHERE status = 'completed' AND created_at >= ?", [monthAgo]).s;
+      const monthOrders = sqlite.get("SELECT COUNT(*) as c FROM orders WHERE status = 'completed' AND created_at >= ?", [monthAgo]).c;
+
+      // Stock value: sum of price * quantity for available products
+      const stockValue = sqlite.get("SELECT COALESCE(SUM(price * quantity), 0) as s FROM products WHERE status = 'available' AND quantity > 0").s;
+      const stockItems = sqlite.get("SELECT COALESCE(SUM(quantity), 0) as c FROM products WHERE status = 'available' AND quantity > 0").c;
+      const stockProducts = sqlite.get("SELECT COUNT(*) as c FROM products WHERE status = 'available' AND quantity > 0").c;
+
+      // Daily breakdown last 7 days (completed)
+      const dailySales = sqlite.all(
+        "SELECT DATE(created_at) as day, COALESCE(SUM(total), 0) as revenue, COUNT(*) as orders FROM orders WHERE status = 'completed' AND created_at >= ? GROUP BY DATE(created_at) ORDER BY day ASC",
+        [weekAgo]
+      );
+
+      return {
+        totalRevenue,
+        weekRevenue,
+        weekOrders,
+        monthlyProjection,
+        monthRevenue,
+        monthOrders,
+        stockValue,
+        stockItems,
+        stockProducts,
+        dailySales,
+      };
+    },
   },
 
   /* ─── Messages ─────────────────────────────────────────────── */
