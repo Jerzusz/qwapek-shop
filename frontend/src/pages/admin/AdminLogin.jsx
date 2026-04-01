@@ -96,9 +96,6 @@ export default function AdminLogin() {
             )}
           </button>
 
-          <p className="text-xs text-gray-400 text-center">
-            Domyślne dane: admin / admin123
-          </p>
         </form>
       </motion.div>
     </div>

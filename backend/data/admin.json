@@ -3,8 +3,8 @@
   "records": [
     {
       "id": 1,
-      "username": "admin",
-      "password_hash": "$2a$10$1tHaX4/Fym6lDlZlRhC4COVYunr/04HHHPCtc/4r6NyN.m8AKnr5W",
+      "username": "Jerzusz",
+      "password_hash": "$2a$10$3jxwXRjpIn/gQPm8Dj1m0OpX/hhmtiVliZSeIssNdRcLv1giV1V4O",
       "created_at": "2026-03-29T10:34:52.547Z"
     }
   ]
