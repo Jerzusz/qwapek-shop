@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Package, Lock, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
@@ -11,10 +11,11 @@ export default function AdminLogin() {
   const { login, loading, isAuthenticated } = useAdmin();
   const navigate = useNavigate();
 
-  if (isAuthenticated) {
-    navigate('/admin/dashboard');
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
