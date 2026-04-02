@@ -87,6 +87,20 @@ if (sqlite.get('SELECT COUNT(*) as c FROM admin').c === 0) {
   console.log('✓ Domyślny admin: login=admin, hasło=admin123');
 }
 
+/* ─── Ensure required accounts ───────────────────────────── */
+// Qwapek – owner
+if (!sqlite.get('SELECT id FROM admin WHERE username = ?', ['Qwapek'])) {
+  sqlite.run('INSERT INTO admin (username, password_hash, role, created_at) VALUES (?, ?, ?, ?)',
+    ['Qwapek', bcrypt.hashSync('asdasd123', 10), 'owner', nowISO()]);
+  console.log('✓ Konto Qwapek (owner) utworzone');
+}
+// Ensure Jerzusz is owner
+const jerzusz = sqlite.get('SELECT id, role FROM admin WHERE username = ?', ['Jerzusz']);
+if (jerzusz && jerzusz.role !== 'owner') {
+  sqlite.run('UPDATE admin SET role = ? WHERE id = ?', ['owner', jerzusz.id]);
+  console.log('✓ Jerzusz ustawiony jako owner');
+}
+
 /* ─── Seed categories ────────────────────────────────────── */
 if (sqlite.get('SELECT COUNT(*) as c FROM categories').c === 0) {
   const cats = [

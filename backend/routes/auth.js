@@ -33,6 +33,27 @@ router.post('/verify', (req, res) => {
   }
 });
 
+// PUT /api/auth/change-password – any authenticated user (own password)
+router.put('/change-password', authenticateToken, (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: 'Podaj aktualne i nowe hasło' });
+    if (newPassword.length < 6) return res.status(400).json({ message: 'Nowe hasło musi mieć min. 6 znaków' });
+
+    const user = db.admin.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'Użytkownik nie znaleziony' });
+
+    if (!bcrypt.compareSync(currentPassword, user.password_hash)) {
+      return res.status(401).json({ message: 'Nieprawidłowe aktualne hasło' });
+    }
+
+    db.admin.update(user.id, { password: newPassword });
+    res.json({ message: 'Hasło zostało zmienione' });
+  } catch (err) {
+    res.status(500).json({ message: 'Błąd serwera', error: err.message });
+  }
+});
+
 // GET /api/auth/users – owner only
 router.get('/users', authenticateToken, (req, res) => {
   try {

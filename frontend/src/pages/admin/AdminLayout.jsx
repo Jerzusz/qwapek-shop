@@ -3,9 +3,10 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, ShoppingBag, MessageSquare, LayoutDashboard,
-  LogOut, Menu, X, ChevronRight, ExternalLink, Tags, Users, TrendingUp
+  LogOut, Menu, X, ChevronRight, ExternalLink, Tags, Users, TrendingUp, KeyRound, Loader2
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
+import { authApi } from '../../api';
 
 const NAV_ITEMS = [
   { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['owner', 'trusted', 'worker'] },
@@ -19,6 +20,11 @@ const NAV_ITEMS = [
 
 export default function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pwModal, setPwModal] = useState(false);
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwError, setPwError] = useState('');
+  const [pwSuccess, setPwSuccess] = useState('');
   const { username, role, logout } = useAdmin();
   const navigate = useNavigate();
 
@@ -27,6 +33,37 @@ export default function AdminLayout() {
   const handleLogout = () => {
     logout();
     navigate('/admin');
+  };
+
+  const openPwModal = () => {
+    setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setPwError('');
+    setPwSuccess('');
+    setPwModal(true);
+  };
+
+  const handleChangePassword = async () => {
+    setPwError('');
+    setPwSuccess('');
+    if (!pwForm.currentPassword) return setPwError('Podaj aktualne hasło');
+    if (!pwForm.newPassword) return setPwError('Podaj nowe hasło');
+    if (pwForm.newPassword.length < 6) return setPwError('Nowe hasło musi mieć min. 6 znaków');
+    if (pwForm.newPassword !== pwForm.confirmPassword) return setPwError('Hasła nie są identyczne');
+
+    setPwSaving(true);
+    try {
+      await authApi.changePassword({
+        currentPassword: pwForm.currentPassword,
+        newPassword: pwForm.newPassword,
+      });
+      setPwSuccess('Hasło zostało zmienione!');
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setTimeout(() => setPwModal(false), 1500);
+    } catch (err) {
+      setPwError(err.response?.data?.message || 'Błąd zmiany hasła');
+    } finally {
+      setPwSaving(false);
+    }
   };
 
   const Sidebar = ({ mobile = false }) => (
@@ -83,6 +120,13 @@ export default function AdminLayout() {
           Podgląd sklepu
         </a>
         <button
+          onClick={openPwModal}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-gray-400 hover:bg-white/10 hover:text-white transition-all"
+        >
+          <KeyRound size={16} />
+          Zmień hasło
+        </button>
+        <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all"
         >
@@ -138,6 +182,78 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+
+      {/* Password change modal */}
+      <AnimatePresence>
+        {pwModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+              onClick={() => setPwModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              onClick={() => setPwModal(false)}
+            >
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                  <h3 className="font-bold text-gray-900">Zmień hasło</h3>
+                  <button onClick={() => setPwModal(false)} className="p-2 rounded-lg hover:bg-gray-100">
+                    <X size={18} className="text-gray-500" />
+                  </button>
+                </div>
+                <div className="p-6 space-y-4">
+                  {pwError && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{pwError}</div>}
+                  {pwSuccess && <div className="p-3 bg-green-50 text-green-700 rounded-xl text-sm">{pwSuccess}</div>}
+                  <div>
+                    <label className="label">Aktualne hasło</label>
+                    <input
+                      type="password"
+                      value={pwForm.currentPassword}
+                      onChange={(e) => setPwForm((f) => ({ ...f, currentPassword: e.target.value }))}
+                      className="input"
+                      autoComplete="current-password"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Nowe hasło</label>
+                    <input
+                      type="password"
+                      value={pwForm.newPassword}
+                      onChange={(e) => setPwForm((f) => ({ ...f, newPassword: e.target.value }))}
+                      className="input"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Powtórz nowe hasło</label>
+                    <input
+                      type="password"
+                      value={pwForm.confirmPassword}
+                      onChange={(e) => setPwForm((f) => ({ ...f, confirmPassword: e.target.value }))}
+                      className="input"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+                  <button onClick={() => setPwModal(false)} className="btn-secondary flex-1">Anuluj</button>
+                  <button onClick={handleChangePassword} disabled={pwSaving} className="btn-primary flex-1 gap-2">
+                    {pwSaving ? <Loader2 size={16} className="animate-spin" /> : null}
+                    Zmień hasło
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

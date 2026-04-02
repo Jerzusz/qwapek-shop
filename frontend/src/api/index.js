@@ -55,6 +55,7 @@ export const contactApi = {
 export const authApi = {
   login: (data) => api.post('/auth/login', data),
   verify: (token) => api.post('/auth/verify', { token }),
+  changePassword: (data) => api.put('/auth/change-password', data),
   getUsers: () => api.get('/auth/users'),
   createUser: (data) => api.post('/auth/users', data),
   updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
