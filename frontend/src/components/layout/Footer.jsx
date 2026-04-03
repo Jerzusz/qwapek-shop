@@ -80,6 +80,12 @@ export default function Footer() {
             <span>·</span>
             <span>Zwroty 14 dni</span>
           </div>
+          <p className="text-xs text-gray-500 mt-2 sm:mt-0">
+            Powered by{' '}
+            <a href="https://www.devwebpro.pl/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-white transition-colors">
+              DevWebPro
+            </a>
+          </p>
         </div>
       </div>
     </footer>
